@@ -1,0 +1,252 @@
+# FaceLink API - Postman Test Routes
+
+Base URL: `http://localhost:3000`
+
+---
+
+##  USER ROUTES
+
+### 1. Create User (POST)
+**URL:** `http://localhost:3000/users`
+**Method:** POST
+**Headers:** Content-Type: application/json
+**Body (raw JSON):**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+```
+
+---
+
+### 2. Get All Users (GET)
+**URL:** `http://localhost:3000/users`
+**Method:** GET
+**Headers:** None
+
+---
+
+### 3. Get User By ID (GET)
+**URL:** `http://localhost:3000/users/{user_id}`
+**Method:** GET
+**Headers:** None
+**Example:** `http://localhost:3000/users/673abc123def456789012345`
+
+---
+
+### 4. Get User's Posts (GET)
+**URL:** `http://localhost:3000/users/{user_id}/posts`
+**Method:** GET
+**Headers:** None
+**Example:** `http://localhost:3000/users/673abc123def456789012345/posts`
+
+---
+
+### 5. Create Post for User (POST)
+**URL:** `http://localhost:3000/users/{user_id}/posts`
+**Method:** POST
+**Headers:** Content-Type: application/json
+**Example URL:** `http://localhost:3000/users/673abc123def456789012345/posts`
+**Body (raw JSON):**
+```json
+{
+  "content": "This is my first post!",
+  "timestamp": "2025-11-21T12:00:00.000Z"
+}
+```
+
+---
+
+##  POST ROUTES
+
+### 6. Get All Posts (GET)
+**URL:** `http://localhost:3000/posts`
+**Method:** GET
+**Headers:** None
+
+---
+
+### 7. Create Post Directly (POST)
+**URL:** `http://localhost:3000/posts`
+**Method:** POST
+**Headers:** Content-Type: application/json
+**Body (raw JSON):**
+```json
+{
+  "content": "Another awesome post!",
+  "user_id": "673abc123def456789012345",
+  "timestamp": "2025-11-21T12:00:00.000Z"
+}
+```
+
+---
+
+### 8. Like Post (PUT)
+**URL:** `http://localhost:3000/posts/{post_id}/like`
+**Method:** PUT
+**Headers:** None
+**Example:** `http://localhost:3000/posts/673def123abc456789012345/like`
+
+---
+
+### 9. Delete Post (DELETE)
+**URL:** `http://localhost:3000/posts/{post_id}`
+**Method:** DELETE
+**Headers:** None
+**Example:** `http://localhost:3000/posts/673def123abc456789012345`
+
+---
+
+## AGGREGATION ROUTES
+
+### 10. Get Most Liked Posts (GET)
+**URL:** `http://localhost:3000/posts/aggregation/most-liked`
+**Method:** GET
+**Headers:** None
+**Returns:** Top 5 posts with most likes
+
+---
+
+### 11. Get Users with Most Posts (GET)
+**URL:** `http://localhost:3000/posts/aggregation/users-most-posts`
+**Method:** GET
+**Headers:** None
+**Returns:** All users sorted by number of posts
+
+---
+
+##  OTHER ROUTES
+
+### 12. API Info (GET)
+**URL:** `http://localhost:3000/api`
+**Method:** GET
+**Headers:** None
+
+---
+
+### 13. Home Page (GET)
+**URL:** `http://localhost:3000/`
+**Method:** GET
+**Headers:** None
+**Returns:** HTML page
+
+---
+
+##  TESTING WORKFLOW
+
+### Step 1: Create Users
+```
+POST http://localhost:3000/users
+Body: {"name": "Alice", "email": "alice@example.com"}
+
+POST http://localhost:3000/users
+Body: {"name": "Bob", "email": "bob@example.com"}
+```
+
+### Step 2: Get All Users (Copy user IDs)
+```
+GET http://localhost:3000/users
+```
+
+### Step 3: Create Posts
+```
+POST http://localhost:3000/users/{alice_user_id}/posts
+Body: {"content": "Hello from Alice!"}
+
+POST http://localhost:3000/users/{bob_user_id}/posts
+Body: {"content": "Bob's first post"}
+```
+
+### Step 4: Get All Posts (Copy post IDs)
+```
+GET http://localhost:3000/posts
+```
+
+### Step 5: Like Posts
+```
+PUT http://localhost:3000/posts/{post_id}/like
+PUT http://localhost:3000/posts/{post_id}/like
+PUT http://localhost:3000/posts/{post_id}/like
+```
+
+### Step 6: Test Aggregations
+```
+GET http://localhost:3000/posts/aggregation/most-liked
+GET http://localhost:3000/posts/aggregation/users-most-posts
+```
+
+### Step 7: Delete a Post
+```
+DELETE http://localhost:3000/posts/{post_id}
+```
+
+---
+
+##  NOTES
+
+- Replace `{user_id}` with actual MongoDB ObjectID (e.g., `673abc123def456789012345`)
+- Replace `{post_id}` with actual MongoDB ObjectID
+- All POST/PUT requests need `Content-Type: application/json` header
+- Timestamps are optional - will default to current time if not provided
+- MongoDB must be running on `mongodb://localhost:27017/facelink`
+
+---
+
+##  SUCCESS RESPONSES
+**Create User (201):**
+```json
+{
+  "id": "673abc123def456789012345",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "posts": []
+}
+```
+
+**Create Post (200):**
+```json
+{
+  "id": "673def123abc456789012345",
+  "user_id": "673abc123def456789012345",
+  "content": "This is my first post!",
+  "timestamp": "2025-11-21T12:00:00.000Z",
+  "likes": 0
+}
+```
+
+**Like Post (200):**
+```json
+{
+  "id": "673def123abc456789012345",
+  "user_id": "673abc123def456789012345",
+  "content": "This is my first post!",
+  "timestamp": "2025-11-21T12:00:00.000Z",
+  "likes": 1
+}
+```
+
+---
+
+##  ERROR RESPONSES
+
+**400 Bad Request:**
+```json
+{
+  "errors": ["Content field cannot be empty"]
+}
+```
+
+**404 Not Found:**
+```json
+{
+  "message": "Post ikke fundet"
+}
+```
+
+**500 Server Error:**
+```json
+{
+  "error": "Error message here"
+}
+```

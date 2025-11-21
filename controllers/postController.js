@@ -4,7 +4,7 @@ const User = require('../models/user');
 exports.createPost = async (req, res) => {
     try {
         const { content, timestamp } = req.body;
-        const userId = req.user._id;
+        const userId = req.params.id || req.body.user_id;
 
         const user = await User.findById(userId);
         if (!user) {
@@ -111,10 +111,10 @@ exports.getUsersWithMostPosts = async (req, res) => {
                     id: 1,
                     name: 1,
                     email: 1,
-                    totalPosts: { $size: '$posts' }
+                    totalPosts: { $size: { $ifNull: ["$posts", []] } }
                 }
             },
-            { $sort: { totalPosts: -1} }
+            { $sort: { totalPosts: -1 } }
         ]);
         res.status(200).json(users);
     } catch (error) {

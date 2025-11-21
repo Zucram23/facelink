@@ -3,6 +3,7 @@ const path = require('path');
 const connectDB = require('./db');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = 3000;
@@ -49,20 +50,10 @@ app.get('/api', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
 
-// 404 handler
-app.use((req, res) => {
-    console.log('404 - Route not found:', req.method, req.url);
-    res.status(404).json({ error: 'Route not found' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Server error:', err.stack);
-    res.status(500).json({ error: 'Noget gik galt!', message: err.message });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`🚀 FaceLink server kører på http://localhost:${PORT}`);
-    console.log(`📱 Åbn http://localhost:${PORT} i din browser`);
-    console.log(`📚 API dokumentation: http://localhost:${PORT}/api`);
+    console.log(`FaceLink server kører på http://localhost:${PORT}`);
+    console.log(`Åbn http://localhost:${PORT} i din browser`);
+    console.log(`API dokumentation: http://localhost:${PORT}/api`);
 });

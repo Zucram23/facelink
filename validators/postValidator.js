@@ -11,7 +11,7 @@ const schema = joi.object({
 
     likes: joi.number().integer().default(0).min(0),
 
-    user_id: joi.string().pattern(objectId).required().messages({
+    user_id: joi.string().pattern(objectId).optional().messages({
         'any.required': 'user_id field is required',
         'string.pattern.base': 'invalid user_id'
     }),
