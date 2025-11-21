@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #050505;
+        }
+
+        /* Header */
+        .header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 8px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1877f2;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 680px;
+            margin: 16px auto;
+            padding: 0 16px;
+        }
+
+        /* Create Post Box */
+        .create-post-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            padding: 12px 16px 10px;
+            margin-bottom: 16px;
+        }
+
+        .create-post-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .user-select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 20px;
+            background-color: #f0f2f5;
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .user-select:focus {
+            background-color: #e4e6eb;
+        }
+
+        .post-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .post-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 20px;
+            background-color: #f0f2f5;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            min-height: 40px;
+        }
+
+        .post-input:focus {
+            background-color: #e4e6eb;
+        }
+
+        .post-btn {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .post-btn:hover {
+            background-color: #166fe5;
+        }
+
+        .post-btn:disabled {
+            background-color: #e4e6eb;
+            color: #bcc0c4;
+            cursor: not-allowed;
+        }
+
+        /* Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Post Card */
+        .post-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            padding: 12px 16px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-author {
+            font-weight: 600;
+            font-size: 15px;
+            color: #050505;
+            line-height: 1.2;
+        }
+
+        .post-timestamp {
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .post-content {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #050505;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .post-actions {
+            border-top: 1px solid #e4e6eb;
+            padding-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #65676b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #f0f2f5;
+        }
+
+        .action-btn.liked {
+            color: #1877f2;
+        }
+
+        .like-icon {
+            font-size: 18px;
+        }
+
+        .delete-btn {
+            color: #f02849;
+        }
+
+        .delete-btn:hover {
+            background-color: #ffebe9;
+        }
+
+        /* No Posts Message */
+        .no-posts {
+            text-align: center;
+            padding: 60px 20px;
+            color: #65676b;
+            font-size: 17px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #65676b;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f2f5;
+            border-top: 4px solid #1877f2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #e7f3ff;
+            color: #1877f2;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-screen h2 {
+            color: #1877f2;
+            margin-bottom: 16px;
+            font-size: 32px;
+        }
+
+        .welcome-screen p {
+            color: #65676b;
+            font-size: 17px;
+            margin-bottom: 24px;
+        }
+
+        .signup-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #1877f2;
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .signup-btn:hover {
+            background-color: #36a420;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 8px;
+            }
+
+            .create-post-box, .post-card {
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header">
+    <div class="header-content">
+        <div class="logo">facelink</div>
+        <div class="header-right">
+            <div class="user-avatar" id="currentUserAvatar" title="Din profil">?</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message"></div>
+
+    <!-- Welcome Screen (shown if no users) -->
+    <div id="welcomeScreen" class="welcome-screen" style="display: none;">
+        <h2>Velkommen til FaceLink</h2>
+        <p>Opret din profil for at komme i gang</p>
+        <div class="signup-form">
+            <form id="signupForm">
+                <div class="form-group">
+                    <input type="text" class="form-input" id="signupName" placeholder="Navn" required minlength="2">
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-input" id="signupEmail" placeholder="Email" required>
+                </div>
+                <button type="submit" class="signup-btn">Opret Profil</button>
+            </form>
+            <p style="margin-top: 20px; color: #65676b; font-size: 14px;">
+                <strong>Debug info:</strong><br>
+                <span id="debugInfo">Indlæser...</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Create Post Box -->
+    <div id="mainContent" style="display: none;">
+        <div class="create-post-box">
+            <div class="create-post-top">
+                <select id="userSelect" class="user-select">
+                    <option value="">Vælg din profil...</option>
+                </select>
+            </div>
+            <div class="post-input-wrapper">
+                <textarea id="postInput" class="post-input" placeholder="Hvad tænker du på?" rows="1"></textarea>
+                <button id="postBtn" class="post-btn" disabled>Del</button>
+            </div>
+        </div>
+
+        <!-- Feed -->
+        <div id="feed" class="feed">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 16px;">Indlæser posts...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:3000';
+    let currentUser = null;
+    let allUsers = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('Loading users...');
+        await loadUsers();
+        console.log('Users loaded:', allUsers.length);
+
+        const debugInfo = document.getElementById('debugInfo');
+        if (debugInfo) {
+            debugInfo.innerHTML = `Antal brugere i database: ${allUsers.length}<br>` +
+                (allUsers.length > 0 ? `Brugere: ${allUsers.map(u => u.name).join(', ')}` : 'Ingen brugere fundet');
+        }
+
+        // Check if we have users
+        if (allUsers.length === 0) {
+            console.log('No users - showing welcome screen');
+            document.getElementById('welcomeScreen').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+        } else {
+            console.log('Users exist - showing main content');
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            await loadPosts();
+        }
+    });
+
+    // Signup Form
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+
+        try {
+            const response = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showSuccess('Profil oprettet! 🎉');
+                await loadUsers();
+                document.getElementById('welcomeScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('userSelect').value = result._id;
+                currentUser = result;
+                updateCurrentUserAvatar();
+            } else {
+                alert(result.errors ? result.errors.join('\n') : 'Fejl ved oprettelse');
+            }
+        } catch (error) {
+            alert('Fejl: ' + error.message);
+        }
+    });
+
+    // Load Users
+    async function loadUsers() {
+        try {
+            const response = await fetch(`${API_URL}/users`);
+            allUsers = await response.json();
+
+            const select = document.getElementById('userSelect');
+            select.innerHTML = '<option value="">Vælg din profil...</option>';
+
+            allUsers.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user._id;
+                option.textContent = user.name;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading users:', error);
+        }
+    }
+
+    // User Select Change
+    document.getElementById('userSelect').addEventListener('change', (e) => {
+        const userId = e.target.value;
+        currentUser = allUsers.find(u => u._id === userId);
+        updateCurrentUserAvatar();
+        checkPostButton();
+    });
+
+    // Update Current User Avatar
+    function updateCurrentUserAvatar() {
+        const avatar = document.getElementById('currentUserAvatar');
+        if (currentUser) {
+            avatar.textContent = currentUser.name.charAt(0).toUpperCase();
+            avatar.title = currentUser.name;
+        }
+    }
+
+    // Post Input
+    const postInput = document.getElementById('postInput');
+    const postBtn = document.getElementById('postBtn');
+
+    postInput.addEventListener('input', () => {
+        postInput.style.height = 'auto';
+        postInput.style.height = postInput.scrollHeight + 'px';
+        checkPostButton();
+    });
+
+    function checkPostButton() {
+        const hasUser = document.getElementById('userSelect').value !== '';
+        const hasContent = postInput.value.trim() !== '';
+        postBtn.disabled = !(hasUser && hasContent);
+    }
+
+    // Create Post
+    postBtn.addEventListener('click', async () => {
+        const userId = document.getElementById('userSelect').value;
+        const content = postInput.value.trim();
+
+        if (!userId || !content) return;
+
+        try {
+            const response = await fetch(`${API_URL}/users/${userId}/posts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content,
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                postInput.value = '';
+                postInput.style.height = 'auto';
+                postBtn.disabled = true;
+                showSuccess('Post delt! 🎉');
+                await loadPosts();
+            } else {
+                alert(result.errors ? result.errors.join('\n') : 'Fejl ved oprettelse af post');
+            }
+        } catch (error) {
+            alert('Fejl: ' + error.message);
+        }
+    });
+
+    // Load Posts
+    async function loadPosts() {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top: 16px;">Indlæser posts...</p></div>';
+
+        try {
+            const response = await fetch(`${API_URL}/posts`);
+            const posts = await response.json();
+
+            if (posts.length === 0) {
+                feed.innerHTML = '<div class="no-posts">Ingen posts endnu.<br>Vær den første til at dele noget! ✨</div>';
+                return;
+            }
+
+            // Sort posts by timestamp (newest first)
+            posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            feed.innerHTML = posts.map(post => createPostHTML(post)).join('');
+        } catch (error) {
+            feed.innerHTML = `<div style="text-align: center; color: #f02849; padding: 40px;">Fejl ved indlæsning: ${error.message}</div>`;
+        }
+    }
+
+    // Create Post HTML
+    function createPostHTML(post) {
+        const author = post.user_id;
+        const authorName = author ? author.name : 'Ukendt';
+        const authorInitial = authorName.charAt(0).toUpperCase();
+        const timeAgo = getTimeAgo(new Date(post.timestamp));
+
+        return `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">${authorInitial}</div>
+                        <div class="post-user-info">
+                            <div class="post-author">${authorName}</div>
+                            <div class="post-timestamp">${timeAgo}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-actions">
+                        <button class="action-btn ${post.likes > 0 ? 'liked' : ''}" onclick="likePost('${post._id}')">
+                            <span class="like-icon">${post.likes > 0 ? '❤️' : '🤍'}</span>
+                            <span>${post.likes > 0 ? post.likes : 'Like'}</span>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deletePost('${post._id}')">
+                            <span>🗑️</span>
+                            <span>Slet</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+    }
+
+    // Like Post
+    async function likePost(postId) {
+        try {
+            const response = await fetch(`${API_URL}/posts/${postId}/like`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                await loadPosts();
+            }
+        } catch (error) {
+            console.error('Error liking post:', error);
+        }
+    }
+
+    // Delete Post
+    async function deletePost(postId) {
+        if (!confirm('Er du sikker på at du vil slette denne post?')) return;
+
+        try {
+            const response = await fetch(`${API_URL}/posts/${postId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                showSuccess('Post slettet');
+                await loadPosts();
+            }
+        } catch (error) {
+            alert('Fejl ved sletning: ' + error.message);
+        }
+    }
+
+    // Show Success Message
+    function showSuccess(message) {
+        const successMsg = document.getElementById('successMessage');
+        successMsg.textContent = message;
+        successMsg.classList.add('show');
+        setTimeout(() => {
+            successMsg.classList.remove('show');
+        }, 3000);
+    }
+
+    // Get Time Ago
+    function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+
+        if (seconds < 60) return 'Lige nu';
+        if (seconds < 3600) return Math.floor(seconds / 60) + ' min';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + ' t';
+        if (seconds < 604800) return Math.floor(seconds / 86400) + ' d';
+
+        return date.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+</body>
+</html>
