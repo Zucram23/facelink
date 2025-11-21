@@ -442,9 +442,14 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
+        // Hide both sections initially
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'none';
+
         console.log('Loading users...');
         await loadUsers();
         console.log('Users loaded:', allUsers.length);
+        console.log('Users:', allUsers);
 
         const debugInfo = document.getElementById('debugInfo');
         if (debugInfo) {
@@ -453,12 +458,12 @@
         }
 
         // Check if we have users
-        if (allUsers.length === 0) {
-            console.log('No users - showing welcome screen');
+        if (!allUsers || allUsers.length === 0) {
+            console.log('✅ No users - showing welcome screen');
             document.getElementById('welcomeScreen').style.display = 'block';
             document.getElementById('mainContent').style.display = 'none';
         } else {
-            console.log('Users exist - showing main content');
+            console.log('✅ Users exist - showing main content');
             document.getElementById('welcomeScreen').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             await loadPosts();
@@ -500,19 +505,28 @@
     async function loadUsers() {
         try {
             const response = await fetch(`${API_URL}/users`);
-            allUsers = await response.json();
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            allUsers = Array.isArray(data) ? data : [];
 
             const select = document.getElementById('userSelect');
-            select.innerHTML = '<option value="">Vælg din profil...</option>';
+            if (select) {
+                select.innerHTML = '<option value="">Vælg din profil...</option>';
 
-            allUsers.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user._id;
-                option.textContent = user.name;
-                select.appendChild(option);
-            });
+                allUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user._id;
+                    option.textContent = user.name;
+                    select.appendChild(option);
+                });
+            }
         } catch (error) {
             console.error('Error loading users:', error);
+            allUsers = [];
         }
     }
 
@@ -640,7 +654,7 @@
     async function likePost(postId) {
         try {
             const response = await fetch(`${API_URL}/posts/${postId}/like`, {
-                method: 'POST'
+                method: 'PUT'
             });
 
             if (response.ok) {

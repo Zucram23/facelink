@@ -19,11 +19,11 @@ exports.createPost = async (req, res) => {
         await newPost.save();
 
         user.posts.push(newPost._id);
-        await newPost.save();
+        await user.save();
 
         res.status(200).json({
-            _id: newPost._id,
-            user_id: newPost.userId,
+            id: newPost.id,
+            user_id: newPost.user_id,
             content: newPost.content,
             timestamp: newPost.timestamp,
             likes: newPost.likes
@@ -46,7 +46,7 @@ exports.likePost = async (req, res) => {
         await post.save();
 
         res.status(200).json({
-            _id: post._id,
+            id: post.id,
             user_id: post.user_id,
             content: post.content,
             timestamp: post.timestamp,
@@ -108,7 +108,7 @@ exports.getUsersWithMostPosts = async (req, res) => {
         const users = await User.aggregate([
             {
                 $project: {
-                    _id: 1,
+                    id: 1,
                     name: 1,
                     email: 1,
                     totalPosts: { $size: '$posts' }

@@ -1,6 +1,6 @@
-const user = require('../models/user');
-const post = require('../models/post');
-const e = require("express");
+const User = require('../models/user');
+const Post = require('../models/post');
+
 
 exports.createUser = async (req, res) => {
     try {
@@ -15,7 +15,7 @@ exports.createUser = async (req, res) => {
         await newUser.save();
 
         res.status(201).json({
-            _id: newUser._id,
+            id: newUser.id,
             name: newUser.name,
             email: newUser.email,
             posts: newUser.posts
@@ -27,7 +27,7 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const user = await user.find().populate("posts");
+        const users = await User.find().populate("posts");
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -36,7 +36,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        const user = await user.findById(req.params.id).populate("posts");
+        const user = await User.findById(req.params.id).populate("posts");
         if (!user) {
             res.status(404).json({ message: "User not found" });
         }
@@ -48,7 +48,7 @@ exports.getUserById = async (req, res) => {
 
 exports.getUserPosts = async (req, res) => {
     try {
-        const user = await user.findById(req.params.id).populate("posts");
+        const user = await User.findById(req.params.id).populate("posts");
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
